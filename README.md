@@ -12,18 +12,7 @@ An MP3 player for your iPhone that works offline:
 
 ## 1. Put it online with GitHub Pages (about 10 minutes, one time)
 
-1. Go to <https://github.com/signup> and make a free account.
-2. Click the **+** at the top right, then **New repository**.
-   - Repository name: `earmark`
-   - Choose **Public** (free GitHub Pages needs this; only the app's code is public, never your MP3s or bookmarks)
-   - Click **Create repository**.
-3. On the next page, click the link that says **uploading an existing file**.
-4. Open the `earmark` folder on your Desktop. Select **everything inside it**, including the `icons` folder, and drag it into the browser window. Wait for all the files to finish uploading, then click **Commit changes**.
-   - Check that the repository now shows an `icons` folder. If it doesn't, drag the `icons` folder in again by itself.
-5. Click the **Settings** tab, then **Pages** in the left sidebar.
-   - Under **Build and deployment**, set **Source** to **Deploy from a branch**.
-   - Set **Branch** to **main** and the folder to **/ (root)**, then click **Save**.
-6. Wait a minute or two and refresh the page. It will say **Your site is live at** `https://YOUR-USERNAME.github.io/earmark/`. That's your app's address.
+
 
 ## 2. Install it on your iPhone
 
