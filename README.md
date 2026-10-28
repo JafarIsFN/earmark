@@ -10,7 +10,7 @@ An MP3 player for your iPhone that works offline:
 
 ---
 
-## 1. Put it online with GitHub Pages (about 10 minutes, one time)
+## 1. Take a Deep Breath
 
 
 
