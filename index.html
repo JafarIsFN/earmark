@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Earmark</title>
+<meta name="description" content="An offline MP3 player with +30s and −10s skips, custom playback speeds and bookmarks.">
+<meta name="theme-color" content="#F3F3F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F1018" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Earmark">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <rect class="bm-bg" width="32" height="32" rx="8"/>
+        <path class="bm-tab" d="M10.5 5h11v21l-5.5-4.2-5.5 4.2z"/>
+        <path class="bm-play" d="M14 10.5v7.5l6-3.75z"/>
+      </svg>
+      <h1>Earmark</h1>
+    </div>
+    <button id="addBtn" class="btn btn-primary" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+      Add MP3s
+    </button>
+    <input id="fileInput" type="file" accept="audio/*,.mp3,.m4a,.m4b,.aac,.wav" multiple hidden>
+  </header>
+
+  <section id="installHint" class="hint" hidden>
+    <strong>Add Earmark to your Home Screen first</strong>
+    <p id="hintText"></p>
+    <button id="hintDismiss" class="btn btn-ghost" type="button">Got it</button>
+  </section>
+
+  <main class="library">
+    <div class="lib-head">
+      <h2 class="eyebrow">Library</h2>
+      <span id="libCount" class="eyebrow num"></span>
+    </div>
+    <ul id="trackList" class="track-list"></ul>
+
+    <div id="emptyState" class="empty" hidden>
+      <svg class="empty-art" viewBox="0 0 96 96" aria-hidden="true">
+        <path class="ea-page" d="M22 8h38l18 18v60a4 4 0 0 1-4 4H22a4 4 0 0 1-4-4V12a4 4 0 0 1 4-4z"/>
+        <path class="ea-fold" d="M60 8v14a4 4 0 0 0 4 4h14z"/>
+        <path class="ea-tab" d="M30 8h14v32l-7-5.5-7 5.5z"/>
+        <g class="ea-wave">
+          <rect x="29" y="60" width="4" height="12" rx="2"/>
+          <rect x="37" y="54" width="4" height="24" rx="2"/>
+          <rect x="45" y="57" width="4" height="18" rx="2"/>
+          <rect x="53" y="50" width="4" height="32" rx="2"/>
+          <rect x="61" y="58" width="4" height="16" rx="2"/>
+        </g>
+      </svg>
+      <h2>Nothing here yet</h2>
+      <p>Add MP3s from the Files app. Earmark keeps a copy on this phone, so they play without internet.</p>
+      <button id="emptyAdd" class="btn btn-primary" type="button">Add MP3s</button>
+      <p class="empty-tip">Tip: save MP3s to iCloud Drive or OneDrive on your computer, then pick them from there.</p>
+    </div>
+  </main>
+
+  <footer class="foot">Your files stay on this device. Nothing is uploaded. · v1.0</footer>
+</div>
+
+<div id="mini" class="mini" hidden>
+  <div class="mini-progress"><div id="miniFill" class="mini-fill"></div></div>
+  <div class="mini-row">
+    <button id="miniOpen" class="mini-info" type="button" aria-label="Open player">
+      <span id="miniTitle" class="mini-title"></span>
+      <span id="miniTime" class="mini-time num"></span>
+    </button>
+    <button id="miniBack" class="icon-btn" type="button" aria-label="Back 10 seconds">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 9a15 15 0 1 1-15 15" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/><path d="M24 3v12l-8.5-6z" fill="currentColor"/><text x="24" y="29.5" text-anchor="middle">10</text></svg>
+    </button>
+    <button id="miniPlay" class="icon-btn mini-play" type="button" aria-label="Play"></button>
+  </div>
+</div>
+
+<section id="player" class="player" hidden aria-label="Now playing">
+  <div class="player-inner">
+    <header class="player-top">
+      <button id="playerClose" class="icon-btn" type="button" aria-label="Close player">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <span class="eyebrow">Now playing</span>
+      <span class="icon-btn-spacer"></span>
+    </header>
+
+    <div class="cover">
+      <img id="coverImg" alt="" hidden>
+      <div id="coverFallback" class="cover-fallback"></div>
+    </div>
+
+    <div class="meta">
+      <h2 id="pTitle"></h2>
+      <p id="pArtist"></p>
+      <p id="sessionNote" class="session-note" hidden>This file isn't saved on this device. It plays until you close Earmark.</p>
+    </div>
+
+    <div id="scrub" class="scrub" role="slider" tabindex="0" aria-label="Position" aria-valuemin="0">
+      <div id="scrubTrack" class="scrub-track">
+        <div id="scrubFill" class="scrub-fill"></div>
+        <div id="scrubTicks" class="scrub-ticks"></div>
+        <div id="scrubThumb" class="scrub-thumb"></div>
+      </div>
+    </div>
+    <div class="times num"><span id="tElapsed">0:00</span><span id="tRemain"></span></div>
+
+    <div class="controls">
+      <button id="back10" class="skip" type="button" aria-label="Back 10 seconds">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 9a15 15 0 1 1-15 15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M24 3v12l-8.5-6z" fill="currentColor"/><text x="24" y="29.5" text-anchor="middle">10</text></svg>
+      </button>
+      <button id="playBtn" class="play" type="button" aria-label="Play"></button>
+      <button id="fwd30" class="skip" type="button" aria-label="Forward 30 seconds">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 9a15 15 0 1 0 15 15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M24 3v12l8.5-6z" fill="currentColor"/><text x="24" y="29.5" text-anchor="middle">30</text></svg>
+      </button>
+    </div>
+
+    <div class="actions">
+      <button id="speedBtn" class="chip chip-speed" type="button" aria-label="Playback speed">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 16.5a7.5 7.5 0 1 1 15 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 16.5l3.6-4.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span id="speedLabel" class="speed-value num">1×</span>
+      </button>
+      <button id="markBtn" class="chip chip-mark" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.5h10a1 1 0 0 1 1 1V21l-6-4.2L6 21V4.5a1 1 0 0 1 1-1z" fill="currentColor"/></svg>
+        Bookmark
+      </button>
+    </div>
+
+    <section class="marks" aria-labelledby="marksTitle">
+      <div class="marks-head">
+        <h3 id="marksTitle">Bookmarks</h3>
+        <span id="markCount" class="eyebrow num"></span>
+      </div>
+      <ul id="markList" class="mark-list"></ul>
+      <p id="marksEmpty" class="marks-empty">No bookmarks yet. Tap Bookmark to save the spot you're at.</p>
+    </section>
+  </div>
+</section>
+
+<div id="speedSheet" class="sheet-backdrop" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="speedTitle">
+    <div class="sheet-grip" aria-hidden="true"></div>
+    <div class="sheet-head">
+      <h3 id="speedTitle">Playback speed</h3>
+      <button id="speedDone" class="btn btn-ghost" type="button">Done</button>
+    </div>
+
+    <div class="speed-readout">
+      <button id="speedMinus" class="nudge" type="button" aria-label="Slower by 0.05">
+        <span class="nudge-sign">−</span><span class="nudge-step num">0.05</span>
+      </button>
+      <output id="speedValue" class="num" aria-live="polite">1×</output>
+      <button id="speedPlus" class="nudge" type="button" aria-label="Faster by 0.05">
+        <span class="nudge-sign">+</span><span class="nudge-step num">0.05</span>
+      </button>
+    </div>
+
+    <div class="speed-slider">
+      <input id="speedRange" class="speed-range" type="range" min="0.5" max="3" step="0.01" aria-label="Speed slider">
+      <div class="speed-scale num" aria-hidden="true">
+        <span style="--at: 0">0.5×</span>
+        <span style="--at: 0.2">1×</span>
+        <span style="--at: 0.4">1.5×</span>
+        <span style="--at: 0.6">2×</span>
+        <span style="--at: 0.8">2.5×</span>
+        <span style="--at: 1">3×</span>
+      </div>
+    </div>
+
+    <label class="speed-exact" for="speedInput">
+      <span>Exact speed <small>0.25 to 4</small></span>
+      <span class="speed-exact-field"><input id="speedInput" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done"><span>×</span></span>
+    </label>
+
+    <div class="presets">
+      <div class="presets-head">
+        <span class="eyebrow">Presets</span>
+        <button id="presetEdit" class="btn btn-ghost btn-small" type="button">Edit</button>
+      </div>
+      <div id="presetList" class="preset-list"></div>
+      <p id="presetsEmpty" class="marks-empty" hidden>No presets. Save a speed you like.</p>
+      <button id="presetSave" class="btn btn-soft" type="button">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden>
+  <span id="toastText"></span>
+  <button id="toastAction" type="button" hidden></button>
+</div>
+
+<audio id="audio" preload="metadata" playsinline></audio>
+
+<noscript><p class="noscript">Earmark needs JavaScript turned on.</p></noscript>
+<script src="app.js"></script>
+</body>
+</html>
