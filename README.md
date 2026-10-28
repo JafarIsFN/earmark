@@ -42,7 +42,3 @@ Then in Earmark, tap **Add MP3s** and pick them. Earmark keeps its own copy, so 
 - **Storage:** iOS can clear a web app's storage if the phone runs very low on space. If a file ever goes missing, add it again. Its bookmarks come back automatically because they're matched to the file.
 - **Copy-protected audiobooks** (Audible, Apple Books purchases) can't be opened by any web app. Plain MP3s, M4A and M4B files without copy protection work.
 - **Keyboard shortcuts on a computer:** Space plays or pauses, ← goes back 10s, → goes forward 30s, B adds a bookmark.
-
-## Updating the app later
-
-After changing any file, open `sw.js` and change `earmark-v1` to `earmark-v2` (then `v3`, and so on), and upload the changed files to GitHub the same way as before. Phones pick up the new version the next time Earmark opens, and show an **Earmark was updated** message with a Reload button.
